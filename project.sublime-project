@@ -1,0 +1,33 @@
+{
+	"folders":
+	[
+		{
+			"follow_symlinks": true,
+			"path": "."
+		}
+	],
+	"build_systems":
+	[
+		{
+			"name": "[this] run",
+			"shell_cmd": "python3 $project_path/source/main.py",
+			"working_dir" : "$project_path",
+			"file_regex": "^[ ]*File \"(...*?)\", line ([0-9]*)",
+			"selector": "source.python",
+			"path" : "$path:/usr/local/bin:/usr/bin"
+		}
+	],
+    "SublimeLinter": {
+        "@python": 3,
+        "linters": {
+            "pylint": {
+                "paths":
+                [
+                    "$project_path/source/",
+                    "$project_path/tests/",
+                    "$project_path/submodules/utils/"
+                ]
+            }
+        }
+    },
+}

@@ -24,8 +24,7 @@
                 "paths":
                 [
                     "$project_path/source/",
-                    "$project_path/tests/",
-                    "$project_path/submodules/utils/"
+                    "$project_path/tests/"
                 ]
             }
         }

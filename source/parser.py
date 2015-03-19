@@ -1,5 +1,6 @@
 
 import csv
+import re
 
 class TbRecord(object):
 
@@ -60,7 +61,7 @@ def read_tb(path):
 
     return recs
 
-def read_hm(path, account_name):
+def read_hm(path, account_name, account_currency):
 
     fd = open(path)
 
@@ -82,8 +83,26 @@ def read_hm(path, account_name):
             continue
 
         amount = float(row[3].replace(',', '.'))
+        currency = currency_map.get(row[4], row[4])
         if row[1] != account_name:
             amount = -amount
+
+            if currency != account_currency:
+                r = re.compile(r'Конверсия из \w+ в \w+ по курсу ([\d\.]+)')
+                m = r.match(row[5])
+                assert m != None, "failed to match conversion operation regex (to determine exchange rate)"
+
+                print('found exchange rate {} for {}'.format(m.group(1), ' '.join(row)))
+                rate = float(m.group(1))
+
+                old_amount = amount
+                amount *= rate
+
+
+                print('changed ammount from {} -> {} using exchange rate {}'.format(old_amount, amount, rate))
+
+        if row[1] == account_name:
+            assert currency == account_currency
 
         r = TbRecord()
 
@@ -91,7 +110,7 @@ def read_hm(path, account_name):
         r.date = '{}-{}-{}'.format(t[2], t[1], t[0])
         r.amount = amount
         r.description = row[5]
-        r.currency = currency_map.get(row[4], row[4])
+        r.currency = account_currency
         recs.append(r)
 
     return recs

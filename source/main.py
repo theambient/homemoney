@@ -1,9 +1,10 @@
-#!/usr/bin/env python3
+##!/usr/bin/env python3
 
 import os.path
 import api
 import parser
 import analyzer
+import argparse
 
 CURRENCY_MAP = {
 	'RUR': 'руб'
@@ -29,20 +30,20 @@ def write_recs(recs, outdir):
 if __name__ == "__main__":
     # api.app.run(debug=True)
 
-    parser = argparse.ArgumentParser()
-    parser.add_argument('-o', '--outdir', dest='outdir', required=True, help='dir where csv files for export will be stored')
-    parser.add_argument('-a', '--account-name', dest='account_name', required=True, help='account name as in homemoney')
-    parser.add_argument('--hm-stat', dest='hm_stat',required=True, help='homemoney statement')
-    parser.add_argument('--tb-stat', dest='tb_stat',required=True, help='telebank statement')
-    parser.add_argument('-p', '--patterns', dest='tb_stat',required=True, help='patterns file')
-    options = parser.parse_args()
+    p = argparse.ArgumentParser()
+    p.add_argument('-o', '--outdir', dest='outdir', required=True, help='dir where csv files for export will be stored')
+    p.add_argument('-a', '--account-name', dest='account_name', required=True, help='account name as in homemoney')
+    p.add_argument('-c', '--account-currency', dest='account_currency', required=True, help='account currency (RUR, EUR, USD)')
+    p.add_argument('--hm-stat', dest='hm_stat', required=True, help='homemoney statement')
+    p.add_argument('--tb-stat', dest='tb_stat', required=True, help='telebank statement')
+    p.add_argument('-p', '--patterns', dest='patterns', required=True, help='patterns file')
+    options = p.parse_args()
 
     tbr = parser.read_tb(options.tb_stat)
-    hmr = parser.read_hm(options.hm_stat, options.account_name)
-
+    hmr = parser.read_hm(options.hm_stat, options.account_name, options.account_currency)
 
     m = analyzer.Matcher(options.patterns)
 
     recs = analyzer.analyze(tbr, hmr, m, options.account_name, True)
 
-    write_recs(recs, outpath)
+    write_recs(recs, options.outdir)
